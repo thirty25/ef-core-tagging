@@ -40,9 +40,31 @@ namespace EfCoreTagging.Tests
             var bloggingContext = new BloggingContext(options);
             await bloggingContext.Database.EnsureCreatedAsync();
             var result = await bloggingContext.Blogs
-                .Where(i => i.Url.StartsWith("http://"))
-                .TagWithSource("Hi mom!")
-                .FirstOrDefaultAsync();
+                .Where(i => i.Url.StartsWith("https://"))
+                .Take(5)
+                .OrderBy(i => i.BlogId)
+                .TagWithSource()
+                .ToListAsync();
+        }
+
+        [Fact]
+        public async Task Test1_WithToList()
+        {
+            await using var connection = new SqliteConnection("Filename=:memory:");
+            connection.Open();
+
+            var options = new DbContextOptionsBuilder<BloggingContext>()
+                .UseSqlite(connection)
+                .UseLoggerFactory(_loggerFactory)
+                .Options;
+
+            var bloggingContext = new BloggingContext(options);
+            await bloggingContext.Database.EnsureCreatedAsync();
+            var result = await bloggingContext.Blogs
+                .Where(i => i.Url.StartsWith("https://"))
+                .Take(5)
+                .OrderBy(i => i.BlogId)
+                .ToListWithSourceAsync();
         }
     }
 }
