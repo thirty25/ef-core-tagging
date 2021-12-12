@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EfCoreTagging.Data;
@@ -45,6 +44,8 @@ namespace EfCoreTagging.Tests
                 .OrderBy(i => i.BlogId)
                 .TagWithSource()
                 .ToListAsync();
+
+            Assert.NotNull(result);
         }
 
         [Fact]
@@ -65,6 +66,8 @@ namespace EfCoreTagging.Tests
                 .Take(5)
                 .OrderBy(i => i.BlogId)
                 .ToListWithSourceAsync();
+
+            Assert.NotNull(result);
         }
     }
 }

@@ -14,30 +14,35 @@ namespace EfCoreTagging.Data
         public static IQueryable<T> TagWithSource<T>(this IQueryable<T> queryable,
             [NotParameterized] string tag = default,
             [NotParameterized] [CallerLineNumber] int lineNumber = 0,
-            [NotParameterized] [CallerFilePath] string filePath = "",
-            [NotParameterized] [CallerMemberName] string memberName = "",
+            [NotParameterized] [CallerFilePath] string filePath = default,
+            [NotParameterized] [CallerMemberName] string memberName = default,
             [NotParameterized] [CallerArgumentExpression("queryable")]
             string argument = "")
         {
-            return queryable.TagWith(GetTagContent<T>(tag, lineNumber, filePath, memberName, argument));
+            return queryable.TagWith(GetTagContent(tag, lineNumber, filePath, memberName, argument));
         }
 
         public static async Task<List<T>> ToListWithSourceAsync<T>(this IQueryable<T> queryable,
             [NotParameterized] string tag = default,
             [NotParameterized] [CallerLineNumber] int lineNumber = 0,
             [NotParameterized] [CallerFilePath] string filePath = "",
-            [NotParameterized] [CallerMemberName] string memberName = "",
+            [NotParameterized] [CallerMemberName] string memberName = default,
             [NotParameterized] [CallerArgumentExpression("queryable")]
-            string argument = "",
+            string argument = default,
             CancellationToken cancellationToken = default)
         {
             return await queryable
-                .TagWith(GetTagContent<T>(tag, lineNumber, filePath, memberName,
-                    $"{argument}.{nameof(ToListWithSourceAsync)}"))
+                .TagWith(GetTagContentWithMethodName(tag, lineNumber, filePath, memberName, argument))
                 .ToListAsync(cancellationToken);
         }
 
-        private static string GetTagContent<T>(string tag, int lineNumber, string filePath, string memberName,
+        private static string GetTagContentWithMethodName(string tag, int lineNumber, string filePath, string memberName,
+            string argument, [CallerMemberName] string additionalMethodInfo = default)
+        {
+            return GetTagContent(tag, lineNumber, filePath, memberName, argument + $".{additionalMethodInfo}()");
+        }
+
+        private static string GetTagContent(string tag, int lineNumber, string filePath, string memberName,
             string argument)
         {
             // argument could be multiple lines with whitespace so let's normalize it down to one line
